@@ -1,0 +1,28 @@
+{
+  "name": "cipher",
+  "version": "0.1.0",
+  "description": "A simple AES-CBC 128-bit cipher",
+  "main": "cipher.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/therootcompany/cipher.js.git"
+  },
+  "keywords": [
+    "aes",
+    "cbc",
+    "128-bit",
+    "cipher"
+  ],
+  "author": "AJ ONeal <aj@therootcompany.com> (https://therootcompany.com/)",
+  "license": "SEE LICENSE IN LICENSE",
+  "bugs": {
+    "url": "https://github.com/therootcompany/cipher.js/issues"
+  },
+  "homepage": "https://github.com/therootcompany/cipher.js#readme",
+  "devDependencies": {
+    "dotenv": "^10.0.0"
+  }
+}
