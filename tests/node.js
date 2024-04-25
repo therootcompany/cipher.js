@@ -1,7 +1,7 @@
 "use strict";
 
 let Crypto = require("crypto");
-let Cipher = require("./cipher.js");
+let Cipher = require("../node.js");
 
 if (require.main === module) {
   require("dotenv").config();
