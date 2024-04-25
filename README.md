@@ -3,11 +3,11 @@
 ```js
 // Generate a 128-bit AES secret:
 crypto
-    .randomBytes(16)
-    .toString("base64")
-    .replace(/\//g, "_")
-    .replace(/\+/g, "-")
-    .replace(/=/g, "");
+  .randomBytes(16)
+  .toString("base64")
+  .replace(/\//g, "_")
+  .replace(/\+/g, "-")
+  .replace(/=/g, "");
 ```
 
 ```js
