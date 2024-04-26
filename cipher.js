@@ -6,6 +6,9 @@ let Crypto = globalThis.crypto;
 
 const IV_SIZE = 16;
 
+let decoder = new TextDecoder();
+let encoder = new TextEncoder();
+
 /**
  * @param {Uint8Array} sharedSecret
  */
@@ -43,11 +46,22 @@ Cipher.create = function (sharedSecret) {
    * @returns {Promise<String>}
    */
   cipher.encryptString = async function (str) {
-    let encoder = new TextEncoder();
     let bytes = encoder.encode(str);
     let encrypted = await cipher.encrypt(bytes);
 
     return encrypted;
+  };
+
+  /**
+   * Encrypts a string and encodes it as base64urlsafe
+   * @param {String} str - utf8 string
+   * @returns {Promise<Uint8Array>}
+   */
+  cipher.encryptStringAsBytes = async function (str) {
+    let bytes = encoder.encode(str);
+    let encBytes = await cipher.encryptAsBytes(bytes);
+
+    return encBytes;
   };
 
   /**
@@ -57,6 +71,21 @@ Cipher.create = function (sharedSecret) {
    * @returns {Promise<String>}
    */
   cipher.encrypt = async function (bytes, _testIv) {
+    // let iv64 = Cipher.utils.bytesToUrlSafe(initializationVector);
+
+    let enc = await cipher.encryptAsBytes(bytes, _testIv);
+    let encUrlSafe = Cipher.utils.bytesToUrlSafe(enc);
+
+    return encUrlSafe;
+  };
+
+  /**
+   * Encrypts a byte array and encodes it as base64urlsafe
+   * @param {Uint8Array} bytes
+   * @param {Uint8Array} [_testIv] - for tests only, do not use
+   * @returns {Promise<Uint8Array>}
+   */
+  cipher.encryptAsBytes = async function (bytes, _testIv) {
     await cipher._init();
 
     let initializationVector = new Uint8Array(IV_SIZE);
@@ -69,20 +98,35 @@ Cipher.create = function (sharedSecret) {
     let buffer = await Crypto.subtle.encrypt(encryptOpts, sharedKey, bytes);
     let cipherBytes = new Uint8Array(buffer);
 
-    let cipher64 = Cipher.utils.bytesToUrlSafe(cipherBytes);
-    let iv64 = Cipher.utils.bytesToUrlSafe(initializationVector);
+    let len = IV_SIZE + cipherBytes.length;
+    let enc = new Uint8Array(len);
 
-    let encrypted = `${cipher64}:${iv64}`;
-    return encrypted;
+    let offset = 0;
+    enc.set(initializationVector, offset);
+
+    offset += IV_SIZE;
+    enc.set(cipherBytes, offset);
+
+    return enc;
   };
 
   /**
-   * @param {String} parts
+   * @param {String} encUrlSafe
    * @returns {Promise<String>}
    */
-  cipher.decryptToString = async function (parts) {
-    let bytes = await cipher.decrypt(parts);
-    let decoder = new TextDecoder();
+  cipher.decryptToString = async function (encUrlSafe) {
+    let bytes = await cipher.decrypt(encUrlSafe);
+    let str = decoder.decode(bytes);
+
+    return str;
+  };
+
+  /**
+   * @param {Uint8Array} encBytes
+   * @returns {Promise<String>}
+   */
+  cipher.decryptBytesToString = async function (encBytes) {
+    let bytes = await cipher.decryptBytes(encBytes);
     let str = decoder.decode(bytes);
 
     return str;
@@ -90,23 +134,33 @@ Cipher.create = function (sharedSecret) {
 
   /**
    * Encrypts a byte array and encodes it as base64urlsafe
-   * @param {String} parts
+   * @param {String} encUrlSafe
    * @return {Promise<Uint8Array>}
    */
-  cipher.decrypt = async function (parts) {
+  cipher.decrypt = async function (encUrlSafe) {
+    let encBytes = Cipher.utils.urlSafeToBytes(encUrlSafe);
+    let bytes = await cipher.decryptBytes(encBytes);
+
+    return bytes;
+  };
+
+  /**
+   * Encrypts a byte array and encodes it as base64urlsafe
+   * @param {Uint8Array} encBytes
+   * @return {Promise<Uint8Array>}
+   */
+  cipher.decryptBytes = async function (encBytes) {
     await cipher._init();
 
-    let [encrypted64, initializationVector64] = parts.split(":");
-    encrypted64 = Cipher.utils.urlSafeToBase64(encrypted64);
-    initializationVector64 = Cipher.utils.urlSafeToBase64(
-      initializationVector64
+    let ivBytes = encBytes.slice(0, IV_SIZE);
+    let encDataBytes = encBytes.slice(IV_SIZE);
+
+    let decryptOpts = Object.assign({ iv: ivBytes }, algoOpts);
+    let buffer = await Crypto.subtle.decrypt(
+      decryptOpts,
+      sharedKey,
+      encDataBytes
     );
-
-    let encrypted = Cipher.utils.base64ToBytes(encrypted64);
-    let iv = Cipher.utils.base64ToBytes(initializationVector64);
-
-    let decryptOpts = Object.assign({ iv: iv }, algoOpts);
-    let buffer = await Crypto.subtle.decrypt(decryptOpts, sharedKey, encrypted);
 
     let bytes = new Uint8Array(buffer);
     return bytes;
@@ -184,44 +238,6 @@ Cipher.utils.base64ToBytes = function (base64) {
   }
 
   return bytes;
-};
-
-/**
- * @param {String} parts - the (mostly) url-safe encrypted string (enc:iv)
- * @returns {Uint8Array} - bytes (first 16 are iv)
- */
-Cipher.utils.encryptedToBytes = function (parts) {
-  let [encrypted64, initializationVector64] = parts.split(":");
-
-  // TODO pre-alloc the right number of bytes
-  let enc = Cipher.utils.urlSafeToBytes(encrypted64);
-  let iv = Cipher.utils.urlSafeToBytes(initializationVector64);
-
-  let len = enc.length + iv.length;
-  let bytes = new Uint8Array(len);
-
-  let offset = 0;
-  bytes.set(iv, offset);
-
-  offset += iv.length;
-  bytes.set(enc, offset);
-
-  return bytes;
-};
-
-/**
- * @param {Uint8Array} bytes - first 16 are iv, followed by encrypted data
- * @returns {String} - mostly url-safe encrypted string (enc:iv)
- */
-Cipher.utils.bytesToEncrypted = function (bytes) {
-  let iv = bytes.slice(0, 16);
-  let enc = bytes.slice(16);
-
-  let encrypted64 = Cipher.utils.bytesToUrlSafe(enc);
-  let initializationVector64 = Cipher.utils.bytesToUrlSafe(iv);
-
-  let parts = `${encrypted64}:${initializationVector64}`;
-  return parts;
 };
 
 /**

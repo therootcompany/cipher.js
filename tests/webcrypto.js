@@ -18,7 +18,7 @@ async function test() {
       0x01, 0x00, 0x90, 0xa0, 0x05, 0x06, 0x07, 0x08, 0xb0, 0xc0, 0xd0, 0x0f,
       0xe0, 0x02, 0x03, 0x04,
     ]);
-    let exp64 = "sucffGCxbgOYCVOoTDecMg:AQCQoAUGBwiwwNAP4AIDBA";
+    let exp64 = "AQCQoAUGBwiwwNAP4AIDBLLnH3xgsW4DmAlTqEw3nDI";
     let enc64 = await testOne(secret128, iv128);
 
     Assert.equal(enc64, exp64);
@@ -36,7 +36,7 @@ async function test() {
       0x01, 0x00, 0x90, 0xa0, 0x05, 0x06, 0x07, 0x08, 0xb0, 0xc0, 0xd0, 0x0f,
       0xe0, 0x02, 0x03, 0x04,
     ]);
-    let exp64 = "Aw506auYFakqYd7wgOqclQ:AQCQoAUGBwiwwNAP4AIDBA";
+    let exp64 = "AQCQoAUGBwiwwNAP4AIDBAMOdOmrmBWpKmHe8IDqnJU";
     let enc64 = await testOne(secret256, iv128);
     Assert.equal(enc64, exp64);
   }
@@ -56,10 +56,8 @@ async function testOne(sharedSecret, testIv) {
   let clearBytes = encoder.encode(clearText);
   // let encrypted = await cipher.encryptString(clearText);
   let encrypted = await cipher.encrypt(clearBytes, testIv);
-  let encBytes = Cipher.utils.encryptedToBytes(encrypted);
   console.info("Encrypted", encrypted);
 
-  encrypted = Cipher.utils.bytesToEncrypted(encBytes);
   let decText = await cipher.decryptToString(encrypted);
   console.info("Decrypted", clearText);
 
