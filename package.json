@@ -1,6 +1,6 @@
 {
   "name": "@root/cipher",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A simple AES-GCM cipher codec (for encrypting and decrypting)",
   "main": "cipher.js",
   "files": [
