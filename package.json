@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "description": "A simple AES-CBC 128-bit cipher",
   "main": "cipher.js",
+  "files": [
+      "cipher.js"
+  ],
   "scripts": {
     "test": "node test.js"
   },
