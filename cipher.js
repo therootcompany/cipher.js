@@ -4,7 +4,8 @@ let Cipher = module.exports;
 
 let Crypto = globalThis.crypto;
 
-const IV_SIZE = 16;
+const IV_SIZE = 12;
+const TAG_SIZE = 12;
 
 let decoder = new TextDecoder();
 let encoder = new TextEncoder();
@@ -19,7 +20,11 @@ Cipher.create = function (sharedSecret) {
   const NON_EXTRACTABLE = false;
   /** @type {"raw"}*/
   let keyFormat = "raw";
-  let algoOpts = { name: "AES-CBC" };
+  let algoOpts = {
+    name: "AES-GCM",
+    tagLength: TAG_SIZE * 8,
+    // additionalData: null,
+  };
   /** @type {Array<"encrypt" | "decrypt" | "sign" | "verify">} */
   let keyUsages = ["encrypt", "decrypt"];
   /** @type {CryptoKey} */

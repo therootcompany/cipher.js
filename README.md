@@ -19,7 +19,7 @@ Because you don't have to be an expert to _use_ cryptography!
 
 ## Example
 
-Encrypt and Decrypt with AES-CBC.
+Encrypt and Decrypt with AES-GCM.
 
 ```js
 let Cipher = require("@root/cipher");
@@ -179,10 +179,12 @@ The _Initialization Vector_ (_IV_) is a _salt_ that prevents known-plaintext
 attacks - meaning that if you encrypt the same message with the same key twice,
 you get a different encrypted output.
 
-The first 16-bytes are for the _IV_. \
-The following bytes are the data. \
+The first 12-bytes (96-bits) are for the _IV_. The following bytes are the data
+and the _Tag_.
+
 If the data is somehow corrupted or truncated, but the first bytes are intact,
-the IV can be used to restore the first partial data.
+it may be possible to use the IV to restore some of the partial data (though
+_Tag_ verification will likely fail).
 
 # LICENSE
 
