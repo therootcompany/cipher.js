@@ -48,11 +48,12 @@ Cipher.create = function (sharedSecret) {
   /**
    * Encrypts a string and encodes it as base64urlsafe
    * @param {String} str - utf8 string
+   * @param {Uint8Array} [_staticIv] - for non-random IVs, such as in tests
    * @returns {Promise<String>}
    */
-  cipher.encryptString = async function (str) {
+  cipher.encryptString = async function (str, _staticIv) {
     let bytes = encoder.encode(str);
-    let encrypted = await cipher.encrypt(bytes);
+    let encrypted = await cipher.encrypt(bytes, _staticIv);
 
     return encrypted;
   };
@@ -60,11 +61,12 @@ Cipher.create = function (sharedSecret) {
   /**
    * Encrypts a string and encodes it as base64urlsafe
    * @param {String} str - utf8 string
+   * @param {Uint8Array} [_staticIv] - for non-random IVs, such as in tests
    * @returns {Promise<Uint8Array>}
    */
-  cipher.encryptStringAsBytes = async function (str) {
+  cipher.encryptStringAsBytes = async function (str, _staticIv) {
     let bytes = encoder.encode(str);
-    let encBytes = await cipher.encryptAsBytes(bytes);
+    let encBytes = await cipher.encryptAsBytes(bytes, _staticIv);
 
     return encBytes;
   };
@@ -72,13 +74,13 @@ Cipher.create = function (sharedSecret) {
   /**
    * Encrypts a byte array and encodes it as base64urlsafe
    * @param {Uint8Array} bytes
-   * @param {Uint8Array} [_testIv] - for tests only, do not use
+   * @param {Uint8Array} [_staticIv] - for non-random IVs, such as in tests
    * @returns {Promise<String>}
    */
-  cipher.encrypt = async function (bytes, _testIv) {
+  cipher.encrypt = async function (bytes, _staticIv) {
     // let iv64 = Cipher.utils.bytesToUrlSafe(initializationVector);
 
-    let enc = await cipher.encryptAsBytes(bytes, _testIv);
+    let enc = await cipher.encryptAsBytes(bytes, _staticIv);
     let encUrlSafe = Cipher.utils.bytesToUrlSafe(enc);
 
     return encUrlSafe;
@@ -87,16 +89,18 @@ Cipher.create = function (sharedSecret) {
   /**
    * Encrypts a byte array and encodes it as base64urlsafe
    * @param {Uint8Array} bytes
-   * @param {Uint8Array} [_testIv] - for tests only, do not use
+   * @param {Uint8Array} [_staticIv] - for non-random IVs, such as in tests
    * @returns {Promise<Uint8Array>}
    */
-  cipher.encryptAsBytes = async function (bytes, _testIv) {
+  cipher.encryptAsBytes = async function (bytes, _staticIv) {
     await cipher._init();
 
-    let initializationVector = new Uint8Array(IV_SIZE);
-    void Crypto.getRandomValues(initializationVector);
-    if (_testIv) {
-      initializationVector = _testIv;
+    let initializationVector;
+    if (_staticIv) {
+      initializationVector = _staticIv;
+    } else {
+      initializationVector = new Uint8Array(IV_SIZE);
+      void Crypto.getRandomValues(initializationVector);
     }
 
     let encryptOpts = Object.assign({ iv: initializationVector }, algoOpts);
