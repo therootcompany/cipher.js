@@ -1,4 +1,4 @@
-# Cipher.js for Node
+# [Cipher.js](https://github.com/therootcompany/cipher.js) for Node
 
 ```js
 // Generate a 128-bit AES secret:
