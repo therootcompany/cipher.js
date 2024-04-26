@@ -8,6 +8,8 @@ let Crypto = globalThis.crypto;
 let Cipher = require("../cipher.js");
 
 async function test() {
+  let SHOW = true;
+
   {
     // 128-bit (16-byte)
     let secret128 = new Uint8Array([
@@ -38,6 +40,7 @@ async function test() {
     ]);
     let exp64 = "AQCQoAUGBwiwwNAP4AIDBAMOdOmrmBWpKmHe8IDqnJU";
     let enc64 = await testOne(secret256, iv128);
+
     Assert.equal(enc64, exp64);
   }
 
@@ -48,7 +51,7 @@ async function test() {
   }
 }
 
-async function testOne(sharedSecret, testIv) {
+async function testOne(sharedSecret, testIv, show) {
   let cipher = Cipher.create(sharedSecret);
 
   let clearText = "123-45-6789";
@@ -56,10 +59,14 @@ async function testOne(sharedSecret, testIv) {
   let clearBytes = encoder.encode(clearText);
   // let encrypted = await cipher.encryptString(clearText);
   let encrypted = await cipher.encrypt(clearBytes, testIv);
-  console.info("Encrypted", encrypted);
+  if (show) {
+    console.info("Encrypted as", encrypted);
+  }
 
   let decText = await cipher.decryptToString(encrypted);
-  console.info("Decrypted", clearText);
+  if (show) {
+    console.info("Decrypted as", clearText);
+  }
 
   Assert.equal(decText, clearText);
 

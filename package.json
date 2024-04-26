@@ -7,7 +7,16 @@
       "cipher.js"
   ],
   "scripts": {
-    "test": "node test.js"
+    "bump": "npm version -m \"chore(release): bump to v%s\"",
+    "fmt": "npm run prettier",
+    "lint": "npm run jshint && npm run tsc",
+    "test": "node ./tests/webcrypto.js",
+    "prepublish": "npm run reexport-types",
+    "--------": "-------------------------------------------------",
+    "jshint": "npx -p jshint@2.x -- jshint -c ./.jshintrc ./*.js",
+    "prettier": "npx -p prettier@2.x -- prettier -w '**/*.{js,md}'",
+    "reexport-types": "npx -p jswt@1.x -- reexport",
+    "tsc": "npx -p typescript@4.x -- tsc -p ./jsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -26,6 +35,7 @@
   },
   "homepage": "https://github.com/therootcompany/cipher.js#readme",
   "devDependencies": {
+    "@types/node": "^20.12.7",
     "dotenv": "^16.4.5"
   }
 }
