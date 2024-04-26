@@ -51,6 +51,11 @@ async function test() {
   }
 }
 
+/**
+ * @param {Uint8Array} sharedSecret
+ * @param {Uint8Array} [testIv]
+ * @param {Boolean} [show]
+ */
 async function testOne(sharedSecret, testIv, show) {
   let cipher = Cipher.create(sharedSecret);
 
