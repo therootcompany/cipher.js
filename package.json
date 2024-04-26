@@ -1,7 +1,7 @@
 {
-  "name": "cipher",
+  "name": "@root/cipher",
   "version": "0.1.0",
-  "description": "A simple AES-CBC 128-bit cipher",
+  "description": "A simple AES-CBC 128-bit cipher codec (for encrypting and decrypting)",
   "main": "cipher.js",
   "files": [
       "cipher.js"
