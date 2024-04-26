@@ -2,7 +2,7 @@
 
 Because you don't have to be an expert to _use_ cryptography!
 
-- Keys can be 128-, 192-, or 256-bit (16, 19, or 24 bytes)
+- Keys can be 128-, 192-, or 256-bit (16, 24, or 32 bytes)
 - Plain input can be raw `Uint8Array`s or (UTF-8) `String`s
 - Encrypted output can be `Base64UrlSafe` Strings, or raw `Uint8Array`s
 
